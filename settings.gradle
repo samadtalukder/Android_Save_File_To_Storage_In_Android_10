@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "Android File Save To Storage In Android 10"
