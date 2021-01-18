@@ -29,7 +29,7 @@ import static com.samad_talukder.androidfilesavetostorageinandroid10.ExternalSto
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG_EXTERNAL_STORAGE = "EXTERNAL_STORAGE";
+    private static final String LOG_TAG_EXTERNAL_STORAGE = "FileSaveToStorage";
 
     private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 1;
 
@@ -42,190 +42,32 @@ public class MainActivity extends AppCompatActivity {
 
         final EditText emailEditor = findViewById(R.id.et_write_something);
 
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        /*int SDK_INT = android.os.Build.VERSION.SDK_INT;
         if (SDK_INT > 8)
         {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-            //your codes here
+        }*/
 
-        }
+        /* Save Text To A Public External Storage Folder. */
+        Button savePublicExternalStorageButton = findViewById(R.id.btn_save_public_external_storage);
+        savePublicExternalStorageButton.setOnClickListener(view -> {
 
-        // Save email to a public external storage folder.
-        Button savePublicExternalStorageButton = (Button) findViewById(R.id.btn_save_public_external_storage);
-        savePublicExternalStorageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            try {
+                if (ExternalStorageUtil.isExternalStorageMounted()) {
 
-                try {
-                    if (ExternalStorageUtil.isExternalStorageMounted()) {
+                    // Check whether this app has write external storage permission or not.
+                    int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    // If do not grant write external storage permission.
+                    if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                        // Request user to grant write external storage permission.
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+                    } else {
 
-                        // Check whether this app has write external storage permission or not.
-                        int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        // If do not grant write external storage permission.
-                        if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                            // Request user to grant write external storage permission.
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
-                        } else {
+                        // Save sample.txt file to /storage/emulated/0/DCIM folder
+                        String publicDcimDirPath = ExternalStorageUtil.getPublicExternalStorageBaseDir(Environment.DIRECTORY_DCIM);
 
-                            // Save email_public.txt file to /storage/emulated/0/DCIM folder
-                            String publicDcimDirPath = ExternalStorageUtil.getPublicExternalStorageBaseDir(Environment.DIRECTORY_DCIM);
-
-                            File newFile = new File(publicDcimDirPath, "email_public.txt");
-
-                            FileWriter fw = new FileWriter(newFile);
-
-                            fw.write(emailEditor.getText().toString());
-
-                            fw.flush();
-
-                            fw.close();
-
-                            Toast.makeText(getApplicationContext(), "Save to public external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                } catch (Exception ex) {
-                    Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
-
-                    Toast.makeText(getApplicationContext(), "Save to public external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        // Save email to a app private external storage folder.
-        Button savePrivateExternalStorageButton = (Button) findViewById(R.id.external_storage_button_save_private);
-        savePrivateExternalStorageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    if (ExternalStorageUtil.isExternalStorageMounted()) {
-
-                        // Check whether this app has write external storage permission or not.
-                        int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        // If do not grant write external storage permission.
-                        if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                            // Request user to grant write external storage permission.
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
-                        } else {
-
-                            // Save email_private.txt file to /storage/emulated/0/Android/data/com.dev2qa.example/files folder
-                            String privateDirPath = getPrivateExternalStorageBaseDir(getApplicationContext(), null);
-
-                            File newFile = new File(privateDirPath, "email_private.txt");
-
-                            FileWriter fw = new FileWriter(newFile);
-
-                            fw.write(emailEditor.getText().toString());
-
-                            fw.flush();
-
-                            fw.close();
-
-                            Toast.makeText(getApplicationContext(), "Save to private external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                } catch (Exception ex) {
-                    Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
-
-                    Toast.makeText(getApplicationContext(), "Save to private external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        // Save email to a app private cached external storage folder.
-        Button savePrivateCachedExternalStorageButton = (Button) findViewById(R.id.external_storage_button_save_private_cache);
-        savePrivateCachedExternalStorageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    if (ExternalStorageUtil.isExternalStorageMounted()) {
-
-                        // Check whether this app has write external storage permission or not.
-                        int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        // If do not grant write external storage permission.
-                        if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                            // Request user to grant write external storage permission.
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
-                        } else {
-
-                            // Save email_private_cache.txt file to /storage/emulated/0/Android/data/com.dev2qa.example/cache folder
-                            String privateDirPath = ExternalStorageUtil.getPrivateCacheExternalStorageBaseDir(getApplicationContext());
-
-                            File newFile = new File(privateDirPath, "email_private_cache.txt");
-
-                            FileWriter fw = new FileWriter(newFile);
-
-                            fw.write(emailEditor.getText().toString());
-
-                            fw.flush();
-
-                            fw.close();
-
-                            Toast.makeText(getApplicationContext(), "Save to private external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                } catch (Exception ex) {
-                    Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
-
-                    Toast.makeText(getApplicationContext(), "Save to private external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        // Display private and public external storage directory in android monitor logcat console.
-        Button displayExternalStoragePathButton = (Button) findViewById(R.id.external_storage_button_display_path);
-        displayExternalStoragePathButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // Because create custom directory in public external storage folder need write permission
-                // So we should grant the permission to the app first.
-
-                // Check whether this app has write external storage permission or not.
-                int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                // If do not grant write external storage permission.
-                if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
-                    // Request user to grant write external storage permission.
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
-                } else {
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Below are public external storage folder path.");
-
-                    // Use Environment class to get public external storage directory.
-                    File publicDir = Environment.getExternalStorageDirectory();
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStorageDirectory() : " + publicDir.getAbsolutePath());
-
-                    // Because at the beginning of this method, we had grant write external storage permission
-                    // So we can create this directory here.
-                    File customPublicDir = new File(publicDir, "AppManager");
-                    customPublicDir.mkdirs();
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Create custom dir : " + customPublicDir.getAbsolutePath());
-
-                    try {
-
-                        URL url = new URL("https://firebasestorage.googleapis.com/v0/b/watch-faces-2dada.appspot.com/o/faces%2F34fca39c-6b6e-4d42-ae53-7090c9673936?alt=media&token=10ea65ab-ba14-49ca-9491-eb14a3dcad4a");
-                        url.openConnection();
-
-                        InputStream in = new BufferedInputStream(url.openStream());
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        byte[] buf = new byte[1024];
-                        int n = 0;
-                        while (-1 != (n = in.read(buf))) {
-                            out.write(buf, 0, n);
-                        }
-                        out.close();
-                        in.close();
-                        byte[] response = out.toByteArray();
-                        FileOutputStream fos = new FileOutputStream(customPublicDir + "/bok2.vxp");
-                        fos.write(response);
-                        fos.close();
-
-                        /*File newFile = new File(customPublicDir, "email.txt");
+                        File newFile = new File(publicDcimDirPath, "sample.txt");
 
                         FileWriter fw = new FileWriter(newFile);
 
@@ -233,46 +75,189 @@ public class MainActivity extends AppCompatActivity {
 
                         fw.flush();
 
-                        fw.close();*/
-                        //Toast.makeText(getApplicationContext(), "Save to  external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                    } catch (Exception ex) {
-                        Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
+                        fw.close();
+
+                        Toast.makeText(getApplicationContext(), "Save to public external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
                     }
-
-
-                    File musicPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) : " + musicPublicDir.getAbsolutePath());
-
-                    File dcimPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) : " + dcimPublicDir.getAbsolutePath());
-
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "**********************************************************************");
-
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "Below are android app private external storage folder path.");
-
-                    // Use Context class to get app private external storage directory
-
-                    Context context = getApplicationContext();
-
-                    File privateDir = context.getExternalFilesDir(null);
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(null) : " + privateDir.getAbsolutePath());
-
-                    File musicPrivateDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) : " + musicPrivateDir.getAbsolutePath());
-
-                    File dcimPrivateDir = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(Environment.DIRECTORY_DCIM) : " + dcimPrivateDir.getAbsolutePath());
-
-                    File customPrivateDir = context.getExternalFilesDir("Custom");
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(\"Custom\") : " + customPrivateDir.getAbsolutePath());
-
-                    File cachedPrivateDir = context.getExternalCacheDir();
-                    Log.d(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalCacheDir() : " + cachedPrivateDir.getAbsolutePath());
-
-                    Toast.makeText(context, "Please see the output in android monitor logcat console.", Toast.LENGTH_LONG).show();
                 }
 
+            } catch (Exception ex) {
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
+
+                Toast.makeText(getApplicationContext(), "Save to public external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
             }
+        });
+
+        /* Save Text To A Private External Storage Folder. */
+        Button savePrivateExternalStorageButton = findViewById(R.id.btn_external_storage_save_private);
+        savePrivateExternalStorageButton.setOnClickListener(view -> {
+
+            try {
+                if (ExternalStorageUtil.isExternalStorageMounted()) {
+
+                    // Check whether this app has write external storage permission or not.
+                    int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    // If do not grant write external storage permission.
+                    if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                        // Request user to grant write external storage permission.
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+                    } else {
+
+                        // Save sample.txt file to /storage/emulated/0/Android/data/com.samad_talukder.androidfilesavetostorageinandroid10/files folder
+                        String privateDirPath = getPrivateExternalStorageBaseDir(getApplicationContext(), null);
+
+                        File newFile = new File(privateDirPath, "sample.txt");
+
+                        FileWriter fw = new FileWriter(newFile);
+
+                        fw.write(emailEditor.getText().toString());
+
+                        fw.flush();
+
+                        fw.close();
+
+                        Toast.makeText(getApplicationContext(), "Save to private external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            } catch (Exception ex) {
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
+
+                Toast.makeText(getApplicationContext(), "Save to private external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        /* Save Text To A App Private Cached External Storage Folder.*/
+        Button savePrivateCachedExternalStorageButton = findViewById(R.id.btn_external_storage_save_private_cache);
+        savePrivateCachedExternalStorageButton.setOnClickListener(view -> {
+
+            try {
+                if (ExternalStorageUtil.isExternalStorageMounted()) {
+
+                    // Check whether this app has write external storage permission or not.
+                    int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    // If do not grant write external storage permission.
+                    if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                        // Request user to grant write external storage permission.
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+                    } else {
+
+                        // Save sample_cache.txt file to /storage/emulated/0/Android/data/com.samad_talukder.androidfilesavetostorageinandroid10/cache folder
+                        String privateDirPath = ExternalStorageUtil.getPrivateCacheExternalStorageBaseDir(getApplicationContext());
+
+                        File newFile = new File(privateDirPath, "sample_cache.txt");
+
+                        FileWriter fw = new FileWriter(newFile);
+
+                        fw.write(emailEditor.getText().toString());
+
+                        fw.flush();
+
+                        fw.close();
+
+                        Toast.makeText(getApplicationContext(), "Save to private external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            } catch (Exception ex) {
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
+
+                Toast.makeText(getApplicationContext(), "Save to private external storage failed. Error message is " + ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        /* Display Private And Public External Storage Directory In Android Monitor Logcat Console. */
+        Button displayExternalStoragePathButton = findViewById(R.id.btn_external_storage_display_path);
+        displayExternalStoragePathButton.setOnClickListener(view -> {
+
+            // Because create custom directory in public external storage folder need write permission
+            // So we should grant the permission to the app first.
+
+            // Check whether this app has write external storage permission or not.
+            int writeExternalStoragePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            // If do not grant write external storage permission.
+            if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                // Request user to grant write external storage permission.
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+            } else {
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Below are public external storage folder path.");
+
+                // Use Environment class to get public external storage directory.
+                File publicDir = Environment.getExternalStorageDirectory();
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStorageDirectory() : " + publicDir.getAbsolutePath());
+
+                // Because at the beginning of this method, we had grant write external storage permission
+                // So we can create this directory here.
+                File customPublicDir = new File(publicDir, "ST");
+                customPublicDir.mkdirs();
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Create custom dir : " + customPublicDir.getAbsolutePath());
+
+                try {
+
+                    /*URL url = new URL("https://firebasestorage.googleapis.com/v0/b/watch-faces-2dada.appspot.com/o/faces%2F34fca39c-6b6e-4d42-ae53-7090c9673936?alt=media&token=10ea65ab-ba14-49ca-9491-eb14a3dcad4a");
+                    url.openConnection();
+
+                    InputStream in = new BufferedInputStream(url.openStream());
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    byte[] buf = new byte[1024];
+                    int n = 0;
+                    while (-1 != (n = in.read(buf))) {
+                        out.write(buf, 0, n);
+                    }
+                    out.close();
+                    in.close();
+                    byte[] response = out.toByteArray();
+                    FileOutputStream fos = new FileOutputStream(customPublicDir + "/bok3.vxp");
+                    fos.write(response);
+                    fos.close();*/
+
+                    File newFile = new File(customPublicDir, "sample.txt");
+
+                    FileWriter fw = new FileWriter(newFile);
+
+                    fw.write(emailEditor.getText().toString());
+
+                    fw.flush();
+
+                    fw.close();
+                    Toast.makeText(getApplicationContext(), "Save to  external storage success. File Path " + newFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                } catch (Exception ex) {
+                    Log.e(LOG_TAG_EXTERNAL_STORAGE, ex.getMessage(), ex);
+                }
+
+
+                File musicPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) : " + musicPublicDir.getAbsolutePath());
+
+                File dcimPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) : " + dcimPublicDir.getAbsolutePath());
+
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "**********************************************************************");
+
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "Below are android app private external storage folder path.");
+
+                // Use Context class to get app private external storage directory
+
+                Context context = getApplicationContext();
+
+                File privateDir = context.getExternalFilesDir(null);
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(null) : " + privateDir.getAbsolutePath());
+
+                File musicPrivateDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) : " + musicPrivateDir.getAbsolutePath());
+
+                File dcimPrivateDir = context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(Environment.DIRECTORY_DCIM) : " + dcimPrivateDir.getAbsolutePath());
+
+                File customPrivateDir = context.getExternalFilesDir("ST");
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalFilesDir(\"ST\") : " + customPrivateDir.getAbsolutePath());
+
+                File cachedPrivateDir = context.getExternalCacheDir();
+                Log.e(LOG_TAG_EXTERNAL_STORAGE, "context.getExternalCacheDir() : " + cachedPrivateDir.getAbsolutePath());
+
+                Toast.makeText(context, "Please see the output in android monitor logcat console.", Toast.LENGTH_LONG).show();
+            }
+
         });
     }
 
